@@ -1,0 +1,79 @@
+﻿@model GigHubOk.ViewModels.HomeViewModel
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<h2>@Model.Heading</h2>
+@using (Html.BeginForm("Search", "Gigs"))
+{
+    <div class="form-group">
+        <div id="searchGigs" class="input-group" style ="width: 300px">
+            @Html.TextBoxFor(m => m.SearchTerm, new { @class = "form-control", placeholder = "Search by artist, venue or genre" })
+            <span class="input-group-addon">
+                <i class="glyphicon glyphicon-search"></i>
+            </span>
+        </div>
+    </div>
+}
+
+
+<ul id ="gigs"class="gigs voffset4">
+
+    @foreach (var gig in Model.UpcommingGigs)
+    {
+        <li>
+            <div class="date">
+                <div class="month">
+                    @gig.Datetime.ToString("MMM")
+                </div>
+                <div class="day">
+                    @gig.Datetime.ToString("d ")
+                </div>
+            </div>
+            <div class="details">
+                <span class="artist">
+                    <a href="@Url.Action("Details", "Gigs", new { id = gig.Id })">
+                        @gig.Artist.Name
+                    </a>
+
+                    @if (gig.IsCanceled)
+                    {
+                        <span class="label label-warning">Canceled</span>
+                    }
+
+                    @*@if (Model.ShowActions)
+                    {
+                        <button class="btn btn-link btn-sm js-toggle-follow" data-userId="@gig.ArtistId">
+                            Follow
+                        </button>
+                    }*@
+
+                </span>
+                <span class="genre">
+                    @gig.Genre.Name
+                </span>
+                @if (Model.ShowActions && !gig.IsCanceled)
+                {
+                    <button data-gigId="@gig.Id"
+                            class="btn
+                            @(Model.Attendances.Contains(gig.Id) ? "btn-info" : "btn-default")
+                            btn-sm js-toggle-attendance">
+                        Going?
+                    </button>
+                }
+
+            </div>
+        </li>
+
+        }
+
+</ul>
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            GigsController.init("#gigs");
+
+        });
+
+    </script>
+}
